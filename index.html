@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#48263f" />
+    <meta name="description" content="心动证据局：在本地把聊天记录还原成可读的关系信号。" />
+    <link rel="manifest" href="app.webmanifest" />
+    <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+    <title>心动证据局 · 关系分析台</title>
+    <link rel="stylesheet" href="styles.css?v=20260901-1" />
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+    <header class="topbar shell">
+      <a class="brand" href="#top" aria-label="心动证据局首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>
+          <strong>心动证据局</strong>
+          <small>RELATIONSHIP OBSERVATORY</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="主导航">
+        <a class="active" href="#report">分析台</a>
+        <a href="#method">怎么读</a>
+      </nav>
+      <div class="privacy-badge"><span></span> 本地运行 · 不上传</div>
+    </header>
+
+    <main id="top">
+      <section class="hero shell">
+        <div class="hero-copy">
+          <p class="eyebrow">01 / 关系观测记录</p>
+          <h1>把心动从感觉，<em>还原成证据。</em></h1>
+          <p class="hero-lede">聊天记录不会替你做决定，但它会诚实地留下：谁在靠近、谁在等待，以及一段关系正在变得更对称，还是更用力。</p>
+          <div class="hero-meta">
+            <span><b class="meta-dot coral"></b> 统计你的真实互动</span>
+            <span><b class="meta-dot mint"></b> 保留关键对话现场</span>
+          </div>
+        </div>
+        <div class="import-card" id="importCard">
+          <div class="card-kicker"><span>START HERE</span><span class="step-index">A</span></div>
+          <h2>把聊天记录放进来</h2>
+          <p class="muted">支持 JSON，或每行一条的带时间戳文本。示例已经为你准备好。</p>
+          <label class="drop-zone" id="dropZone" for="fileInput">
+            <input id="fileInput" type="file" accept=".json,.txt,.md,.text,application/json,text/plain" />
+            <span class="drop-icon" aria-hidden="true">↥</span>
+            <span><strong>拖入文件</strong> 或点击选择</span>
+            <small>数据只留在这台设备的浏览器里</small>
+          </label>
+          <div class="import-divider"><span>或者直接粘贴</span></div>
+          <textarea id="textInput" placeholder="[2026-08-12 20:10] 我: 今天见到你很开心\n[2026-08-12 20:12] TA: 我也是，周末见？"></textarea>
+          <div class="identity-fields">
+            <label>我的昵称 / ID<input id="myIdentity" type="text" placeholder="可选：用于识别发送方向" /></label>
+            <label>TA 的昵称 / ID<input id="contactIdentity" type="text" placeholder="可选：用于识别发送方向" /></label>
+          </div>
+          <p class="identity-hint">导入或粘贴新的聊天记录后，会清理上一份记录的自动识别结果并重新定位“你 / TA”；手动填写的昵称会保留。</p>
+          <div class="identity-detection" id="identityDetection" hidden aria-live="polite">
+            <div class="identity-detection-heading"><span>自动识别</span><strong id="identityDetectionTitle">等待识别结果</strong></div>
+            <p id="identityDetectionNote"></p>
+            <div class="identity-choices" id="identityChoices"></div>
+          </div>
+          <div class="import-actions">
+            <button class="button button-primary" id="analyzeButton">开始观测 <span>→</span></button>
+            <button class="button button-quiet" id="demoButton">载入示例</button>
+          </div>
+          <div class="import-status" id="importStatus" role="status"><span class="status-led"></span> 已载入一段示例关系记录</div>
+          <section class="export-guide" aria-labelledby="exportGuideTitle">
+            <div class="export-guide-heading">
+              <div>
+                <p class="mini-label">先导出，再分析</p>
+                <h3 id="exportGuideTitle">聊天记录从哪里来</h3>
+              </div>
+              <span>两条路径</span>
+            </div>
+            <p class="export-guide-intro">本页只负责读取你主动导出的 JSON / TXT，不连接 QQ 或微信客户端，也不读取、解密聊天数据库。导出完成后，把文件拖到上方即可。</p>
+            <div class="export-tool-grid">
+              <article class="export-tool-card export-tool-wechat">
+                <div class="export-tool-top"><span>01</span><b>微信</b></div>
+                <h4>微信聊天记录</h4>
+                <p>使用本包附带的 WeChat-Chat-Export-for-LLM Windows 工具，导出 JSON、TXT 或 Markdown 后再导入本页。</p>
+                <a class="export-tool-link" href="导出工具/微信/WeChat-Chat-Export-for-LLM.exe" download>下载包内微信工具 <span>↓</span></a>
+                <a class="export-tool-link" href="https://github.com/zhuzhangxue/wechat-chat-export" target="_blank" rel="noreferrer noopener">查看微信导出说明 <span>↗</span></a>
+                <small>适用于 Windows 微信 4.1.12+；本程序只负责分析导出文件。</small>
+              </article>
+              <article class="export-tool-card export-tool-qq">
+                <div class="export-tool-top"><span>02</span><b>QQ</b></div>
+                <h4>QQ 聊天记录</h4>
+                <p>直接使用本包附带的 QQ Chat Exporter Windows 安装包，按工具页面导出好友或群聊记录，再把 JSON / TXT 文件导入本页。</p>
+                <a class="export-tool-link" href="导出工具/QQ/QQChatExporter-Installer-v6.2.8.exe" download>下载包内 QQ 工具 <span>↓</span></a>
+                <a class="export-tool-link" href="https://github.com/shuakami/qq-chat-exporter/releases/latest" target="_blank" rel="noreferrer noopener">下载 QQ 导出工具 <span>↗</span></a>
+                <small>包内为官方 v6.2.8 Windows x64 安装包；本程序不再直连导出器。</small>
+              </article>
+            </div>
+            <p class="export-guide-footnote">详细的文件放置位置、导出步骤、格式要求和隐私提醒，见项目文件夹中的 <code>导出工具\README.md</code>。</p>
+          </section>
+        </div>
+      </section>
+
+      <section class="report-section shell" id="report" aria-labelledby="reportTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / LIVE READOUT</p>
+            <h2 id="reportTitle">这段关系的现场</h2>
+          </div>
+          <div class="heading-actions">
+            <span class="scope-label" id="scopeLabel">示例样本 · 最近 90 天</span>
+            <button class="icon-button" id="downloadButton" title="下载分析摘要" aria-label="下载分析摘要">↓</button>
+          </div>
+        </div>
+
+        <div class="report-hero">
+          <div class="profile-block">
+            <div class="avatar" id="avatar">TA</div>
+            <div>
+              <p class="mini-label">正在观察</p>
+              <h3 id="contactName">TA</h3>
+              <p class="muted" id="dateRange">2026.06.10 — 2026.08.31</p>
+            </div>
+          </div>
+          <div class="headline-verdict">
+            <p class="mini-label">一句话读局</p>
+            <h3 id="verdict">回应有来有往，但主动权仍在你这边。</h3>
+            <p id="verdictDetail">这不是“她爱不爱你”的判决，而是这份记录里目前最稳定的信号。</p>
+          </div>
+          <div class="score-orb" id="scoreOrb" style="--score: 68deg" aria-label="关系对称度 68 分">
+            <div><strong id="symmetryScore">68</strong><span>关系<br />对称度</span></div>
+          </div>
+        </div>
+
+        <div class="narrative-report" id="narrativeReport">
+          <div class="report-disclaimer"><span class="disclaimer-mark">◎</span><span>以下结论仅基于当前导入且成功识别发送方向的聊天记录，属于行为观察，不是对现实关系的绝对判定。<strong id="reportDataLine">等待有效数据</strong></span></div>
+
+          <article class="narrative-module narrative-conclusion">
+            <div class="module-index">01</div>
+            <div><p class="module-kicker">一句话结论</p><h3 id="narrativeConclusion">等待有效聊天记录</h3><p id="narrativeConclusionDetail">导入记录后，这里会把关系类型、互动对称性和主导节奏合并成一段可读结论。</p></div>
+          </article>
+
+          <div class="narrative-grid diagnosis-grid">
+            <article class="narrative-module">
+              <div class="module-heading"><span class="module-index">03</span><div><p class="module-kicker">数据概览</p><h3>先看发生过什么</h3></div></div>
+              <div class="overview-stats" id="overviewStats"></div>
+              <p class="module-copy" id="overviewSummary"></p>
+            </article>
+            <article class="narrative-module">
+              <div class="module-heading"><span class="module-index">02</span><div><p class="module-kicker">先判断关系</p><h3 id="relationshipRecognitionTitle">先判断你们是什么关系</h3></div><span class="panel-note" id="relationshipConfidence">等待数据</span></div>
+              <div class="relationship-recognition" id="relationshipRecognition">
+                <div class="recognition-lead"><span>初步归类</span><strong id="relationshipDomain">待识别</strong><em id="relationshipConfidenceBadge">—</em></div>
+                <p id="relationshipRecognitionSummary">导入聊天记录后，先根据关系称谓、身份和场景信号判断关系类型，再决定是否进入恋爱维度分析。</p>
+                <ul class="relationship-signal-list" id="relationshipSignalList"></ul>
+              </div>
+              <div class="diagnosis-facts" id="diagnosisFacts"></div>
+              <p class="module-copy" id="diagnosisSummary"></p>
+            </article>
+          </div>
+
+          <article class="narrative-module narrative-wide">
+            <div class="module-heading"><span class="module-index">04</span><div><p class="module-kicker">双方画像</p><h3>两个人是怎样靠近的</h3></div><span class="panel-note">双方最多 5 条原话 · 每条单独解读</span></div>
+            <div class="narrative-portraits">
+              <section class="narrative-person person-me"><span class="person-label">A / 你</span><h4 id="narrativeUserTitle">等待数据</h4><p id="narrativeUserCopy"></p><div class="person-evidence" id="narrativeUserEvidence" hidden></div><div class="person-evidence-list" id="narrativeUserEvidenceList"></div></section>
+              <section class="narrative-person person-them"><span class="person-label">B / TA</span><h4 id="narrativePartnerTitle">等待数据</h4><p id="narrativePartnerCopy"></p><div class="person-evidence" id="narrativePartnerEvidence" hidden></div><div class="person-evidence-list" id="narrativePartnerEvidenceList"></div></section>
+            </div>
+          </article>
+
+          <article class="narrative-module narrative-wide">
+            <div class="module-heading"><span class="module-index">05</span><div><p class="module-kicker">互动结构</p><h3>把热情和压力放回同一条时间线</h3></div></div>
+            <p class="module-copy module-copy-large" id="interactionSummary"></p>
+            <ol class="interaction-flow" id="interactionFlow"></ol>
+            <div class="narrative-evidence-grid" id="structureEvidence"></div>
+          </article>
+
+          <div class="narrative-grid">
+            <article class="narrative-module">
+              <div class="module-heading"><span class="module-index">06</span><div><p class="module-kicker" id="narrativeTriangleKicker">关系成分</p><h3 id="narrativeTriangleTitle">Sternberg 三角</h3></div></div>
+              <div class="narrative-triangle"><div><span>激情</span><strong id="narrativePassion">—</strong></div><div><span>亲密</span><strong id="narrativeIntimacy">—</strong></div><div><span>承诺</span><strong id="narrativeCommitment">—</strong></div></div>
+              <p class="module-copy" id="narrativeTriangleCopy"></p>
+            </article>
+            <article class="narrative-module">
+              <div class="module-heading"><span class="module-index">07</span><div><p class="module-kicker">风险预警</p><h3>先观察模式，再给它命名</h3></div></div>
+              <ul class="narrative-risk-list" id="narrativeRiskList"></ul>
+              <p class="module-copy" id="narrativeRiskCopy"></p>
+            </article>
+          </div>
+
+          <article class="narrative-module narrative-wide advice-module">
+            <div class="module-heading"><span class="module-index">08</span><div><p class="module-kicker">关系军师</p><h3>下一步不是加码，而是留出反馈空间</h3></div></div>
+            <div class="advice-layout"><div><p class="module-copy module-copy-large" id="narrativeAdvice"></p><div class="script-card"><span>可以这样说</span><blockquote id="narrativeScript"></blockquote></div></div><div class="boundary-card"><span>观测边界</span><strong id="narrativeBoundaryDays">14 天</strong><p id="narrativeBoundary"></p></div></div>
+          </article>
+
+          <article class="narrative-module narrative-final">
+            <div class="module-heading"><span class="module-index">09</span><div><p class="module-kicker">最终结论</p><h3>把确定性交给持续行动</h3></div></div>
+            <p class="module-copy module-copy-large" id="narrativeFinal"></p>
+            <div class="final-evidence" id="narrativeFinalEvidence"></div>
+          </article>
+        </div>
+
+        <div class="score-grid">
+          <article class="score-card coral-card">
+            <div class="score-card-top"><span class="score-icon">↗</span><span class="score-tag">投入侧</span></div>
+            <div class="score-line"><strong id="initiativeScore">72</strong><span>/ 100</span></div>
+            <h3>主动投入</h3>
+            <p id="initiativeNote">你发起了 58% 的对话，回复也更快。</p>
+            <div class="meter"><i id="initiativeMeter" style="width:72%"></i></div>
+          </article>
+          <article class="score-card plum-card">
+            <div class="score-card-top"><span class="score-icon">♡</span><span class="score-tag">回应侧</span></div>
+            <div class="score-line"><strong id="lovedScore">66</strong><span>/ 100</span></div>
+            <h3>被回应感</h3>
+            <p id="lovedNote">TA 会主动开启话题，也会把话题接住。</p>
+            <div class="meter"><i id="lovedMeter" style="width:66%"></i></div>
+          </article>
+          <article class="score-card ink-card">
+            <div class="score-card-top"><span class="score-icon">◌</span><span class="score-tag">摩擦侧</span></div>
+            <div class="score-line"><strong id="coldScore">28</strong><span>/ 100</span></div>
+            <h3>冷淡信号</h3>
+            <p id="coldNote">短回复与长等待暂时没有形成压倒性模式。</p>
+            <div class="meter"><i id="coldMeter" style="width:28%"></i></div>
+          </article>
+        </div>
+
+        <div class="insight-grid">
+          <article class="panel trend-panel">
+            <div class="panel-heading">
+              <div><p class="mini-label">互动密度</p><h3>靠近不是一条直线</h3></div>
+              <span class="panel-note" id="trendNote">每日消息量</span>
+            </div>
+            <div class="trend-chart" id="trendChart" aria-label="每日消息量趋势图"></div>
+            <div class="chart-axis"><span id="trendStart">06.10</span><span>互动高峰</span><span id="trendEnd">08.31</span></div>
+          </article>
+          <article class="panel pulse-panel">
+            <div class="panel-heading"><div><p class="mini-label">关系脉搏</p><h3>四个更具体的答案</h3></div></div>
+            <div class="pulse-list">
+              <div class="pulse-row"><span class="pulse-symbol">对话</span><strong id="messageCount">1,248</strong><span>条记录</span></div>
+              <div class="pulse-row"><span class="pulse-symbol">开启</span><strong id="startCount">18 / 24</strong><span>次由你 / TA</span></div>
+              <div class="pulse-row"><span class="pulse-symbol">等待</span><strong id="replyTime">8分 / 22分</strong><span>平均回复</span></div>
+              <div class="pulse-row"><span class="pulse-symbol">修复</span><strong id="repairCount">4 / 2</strong><span>次沉默后重启</span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="evidence-layout">
+          <article class="panel evidence-panel">
+            <div class="panel-heading"><div><p class="mini-label">证据回放</p><h3>别只看分数，回到原话</h3></div><span class="evidence-count" id="evidenceCount">03 条锚点</span></div>
+            <div id="evidenceList" class="evidence-list"></div>
+          </article>
+          <article class="panel profile-panel">
+            <div class="panel-heading"><div><p class="mini-label">语言剖面</p><h3>你们如何说话</h3></div></div>
+            <div class="profile-bars" id="profileBars"></div>
+            <p class="profile-footnote">词语是线索，不是诊断。真正重要的是它们在什么情境里出现。</p>
+          </article>
+        </div>
+
+        <div class="diagnosis-strip">
+          <article class="diagnosis-card"><span class="diagnosis-label">关系类型</span><strong id="relationshipType">相互喜欢</strong><p id="relationshipLabel">双方有好感，也有可观察的回应循环。</p></article>
+          <article class="diagnosis-card"><span class="diagnosis-label">关系阶段</span><strong id="relationshipStage">暧昧升温期</strong><p id="stageDescription">互动已经有情绪温度，正在等待更多确定性。</p></article>
+          <article class="diagnosis-card"><span class="diagnosis-label">最近趋势</span><strong id="relationshipTrend">平稳维持</strong><p id="trendDescription">最近的消息密度与情绪表达暂时稳定。</p></article>
+          <article class="diagnosis-card"><span class="diagnosis-label">Gottman 正负比</span><strong id="gottmanRatio">—</strong><p id="gottmanNote">只有把原话放回语境，比例才有意义。</p></article>
+        </div>
+
+        <div class="deep-dive-grid">
+          <article class="panel triangle-panel" id="trianglePanel">
+            <div class="panel-heading"><div><p class="mini-label" id="triangleKicker">关系成分</p><h3 id="triangleTitle">Sternberg 三角</h3></div><span class="panel-note" id="loveType">浪漫之爱</span></div>
+            <div class="triangle-visual" aria-label="激情、亲密和承诺评分"><div class="triangle-shape"><span class="triangle-dot passion-dot"></span><span class="triangle-dot intimacy-dot"></span><span class="triangle-dot commitment-dot"></span><span class="triangle-center">三角<br />观测</span></div><div class="triangle-legend"><div><i class="legend-passion"></i><span>激情</span><strong id="passionScore">—</strong></div><div><i class="legend-intimacy"></i><span>亲密</span><strong id="intimacyScore">—</strong></div><div><i class="legend-commitment"></i><span>承诺</span><strong id="commitmentScore">—</strong></div></div></div>
+            <p class="panel-footnote" id="triangleNote">分数来自可观察的见面、情感支持与具体规划信号，不等同于爱情量表。</p>
+          </article>
+          <article class="panel language-panel">
+            <div class="panel-heading"><div><p class="mini-label">语言模式</p><h3>你们如何把在意说出来</h3></div></div>
+            <div class="language-stats"><div><strong id="weCount">0</strong><span>“我们”共建</span></div><div><strong id="futureCount">0</strong><span>未来指向</span></div><div><strong id="positiveCount">0</strong><span>正向情绪</span></div><div><strong id="negativeCount">0</strong><span>负向情绪</span></div></div>
+            <div class="language-callout"><span class="callout-mark">↳</span><p id="languageFinding">语言模式会把你们的边界、期待和不安暴露出来。</p></div>
+            <div class="valence-bar"><i id="positiveBar"></i><i id="negativeBar"></i></div><div class="valence-legend"><span><i class="positive-key"></i>正向表达</span><span><i class="negative-key"></i>负向表达</span></div>
+          </article>
+        </div>
+
+        <div class="portrait-grid">
+          <article class="panel portrait-card user-portrait"><div class="panel-heading"><div><p class="mini-label">画像 A / 你</p><h3 id="userStyle">情绪型 · 主导型</h3></div><span class="portrait-symbol">你</span></div><div class="portrait-summary"><div class="portrait-stat"><span>依恋倾向</span><strong id="userAttachment">—</strong></div><div class="portrait-stat"><span id="userLanguageLabel">爱的语言</span><strong id="userLoveLanguage">—</strong></div><div class="portrait-stat"><span>底层需求</span><strong id="userNeed">—</strong></div></div><p class="portrait-copy" id="userPortraitCopy">分析会根据你在等待、表达和修复时的行为，描述你的沟通习惯。</p><div class="portrait-evidence" id="userPortraitEvidence" hidden></div><div class="portrait-evidence-list" id="userPortraitEvidenceList"></div></article>
+          <article class="panel portrait-card partner-portrait"><div class="panel-heading"><div><p class="mini-label">画像 B / TA</p><h3 id="partnerStyle">选择性开放 · 行动型</h3></div><span class="portrait-symbol">TA</span></div><div class="portrait-summary"><div class="portrait-stat"><span>依恋倾向</span><strong id="partnerAttachment">—</strong></div><div class="portrait-stat"><span id="partnerLanguageLabel">爱的语言</span><strong id="partnerLoveLanguage">—</strong></div><div class="portrait-stat"><span>情感可得性</span><strong id="availability">—</strong></div></div><p class="portrait-copy" id="partnerPortraitCopy">TA 的画像只会基于当前记录里的行为信号，不把沉默直接翻译成性格。</p><div class="portrait-evidence" id="partnerPortraitEvidence" hidden></div><div class="portrait-evidence-list" id="partnerPortraitEvidenceList"></div></article>
+        </div>
+
+        <div class="risk-layout">
+          <article class="panel risk-panel"><div class="panel-heading"><div><p class="mini-label">风险雷达</p><h3>先观察模式，再给它命名</h3></div><span class="evidence-count" id="riskCount">0 项</span></div><div id="riskList" class="risk-list"></div><p class="risk-footnote" id="riskFootnote">只有“量化条件 + 原话条件”同时满足，才会升级为高亮预警；单独出现的统计信号仅列为观察项。</p></article>
+          <article class="panel repair-panel"><div class="panel-heading"><div><p class="mini-label">冲突与修复</p><h3>关系坏掉之后，谁把它捡回来</h3></div></div><div class="repair-score"><div><strong id="repairMe">0</strong><span>你先修复</span></div><b>:</b><div><strong id="repairThem">0</strong><span>TA 先修复</span></div></div><p class="repair-copy" id="repairCopy">还没有足够的长间隔样本，先不要急着给谁贴标签。</p><div class="horsemen" id="horsemen"><span>批评</span><span>蔑视</span><span>防御</span><span>筑墙</span></div></article>
+        </div>
+
+        <div class="strategy-layout">
+          <article class="panel strategy-panel"><div class="panel-heading"><div><p class="mini-label">关系军师</p><h3>把洞察变成下一次行动</h3></div></div><div class="strategy-columns"><div><h4>先停止</h4><div id="stopList" class="strategy-list"></div></div><div><h4>再开始</h4><div id="startList" class="strategy-list"></div></div></div></article>
+          <article class="panel boundary-panel"><div class="panel-heading"><div><p class="mini-label">止损边界</p><h3>给自己一个可执行的期限</h3></div></div><div class="boundary-number"><strong id="walkAwayTime">14</strong><span>天<br />观察窗</span></div><p id="walkAwayText">如果接下来仍只有你在推动，而 TA 没有稳定的主动回应，就把沉默当作信息，不再追加投入。</p><div class="boundary-line"><span>具体触发</span><strong id="walkAwayTrigger">连续 3 天没有回应，且没有主动修复</strong></div></article>
+        </div>
+
+        <article class="panel findings-panel"><div class="panel-heading"><div><p class="mini-label">五个发现</p><h3>比结论更值得保存的，是这些现场</h3></div><span class="panel-note">只引用当前记录里的原话</span></div><div id="findingsList" class="findings-list"></div></article>
+
+        <div class="next-step" id="nextStep">
+          <div class="next-step-copy"><p class="eyebrow">03 / FOR YOUR NEXT MOVE</p><h2>下一步，把期待说得更小一点。</h2><p id="nextStepText">保持你自己的节奏，观察 TA 是否会在没有被提醒时也主动靠近。关系的答案，往往藏在对方持续做什么，而不是偶尔说什么。</p></div>
+          <div class="red-lines"><span class="mini-label">你的观测边界</span><div><span>不以一次晚回定义全部</span><span>不替对方解释沉默</span><span>不拿付出去换确定</span></div></div>
+        </div>
+      </section>
+
+      <section class="method-section shell" id="method">
+        <div class="method-intro"><p class="eyebrow">HOW TO READ</p><h2>先看行为，再谈故事。</h2><p>这台分析台借鉴了原项目的思路：统计层覆盖当前记录，证据层从当前时间线提取原话与关键窗口，解释层再把数字放回语境。证据不足时保留空白，不把模板当成结论。</p></div>
+        <div class="method-steps">
+          <div class="method-step"><b>01</b><h3>统一时间</h3><p>把秒、毫秒和日期文本归一到同一条时间轴。</p></div>
+          <div class="method-step"><b>02</b><h3>读互动</h3><p>识别开启对话、回复速度、连续发送和长时间等待。</p></div>
+          <div class="method-step"><b>03</b><h3>留证据</h3><p>把关键原话保留下来，分数只能指路，不能替你下结论。</p></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell"><span>心动证据局 / v0.1 local prototype</span><span>Made for clearer conversations.</span></footer>
+    <script src="app.js?v=20260901-1"></script>
+    <script>
+      if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+      }
+    </script>
+  </body>
+</html>
