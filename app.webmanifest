@@ -1,0 +1,18 @@
+{
+  "name": "心动证据局",
+  "short_name": "心动证据局",
+  "description": "在本地把聊天记录还原成可读的关系信号。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f1ea",
+  "theme_color": "#48263f",
+  "icons": [{
+    "src": "app-icon.svg",
+    "sizes": "any",
+    "type": "image/svg+xml",
+    "purpose": "any maskable"
+  }]
+}
