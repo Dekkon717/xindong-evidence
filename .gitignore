@@ -1,0 +1,7 @@
+# GitHub 源码仓库不提交安装程序、离线压缩包和本地聊天记录
+*.exe
+*.zip
+*.json
+*.tmp
+Thumbs.db
+.DS_Store
